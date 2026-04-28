@@ -16,7 +16,7 @@ function Users() {
     const [search, setSearch] = useState("")
     
     const addUser = () => {
-      if (!name || !email || !role) return
+      if (!validate()) return
 
       if (editingUser) {
         const updated = users.map(user =>
@@ -61,6 +61,29 @@ function Users() {
     useEffect(() => {
       localStorage.setItem("users", JSON.stringify(users))
     }, [users])
+
+    //// Errores
+    const [errors, setErrors] = useState({})
+
+    const validate = () => {
+      let newErrors = {}
+
+      if (!name.trim()) {
+        newErrors.name = "El nombre es obligatorio"
+      }
+
+      if (!email.trim()) {
+        newErrors.email = "El email es obligatorio"
+      } else if (!/\S+@\S+\.\S+/.test(email)) {
+        newErrors.email = "Email no válido"
+      }
+
+      if (!role.trim()) {
+        newErrors.role = "El rol es obligatorio"
+      }
+      setErrors(newErrors)
+      return Object.keys(newErrors).length === 0
+    }
   return (
     <div style={{ padding: "20px" }}>
       <h2>Usuarios</h2>
@@ -69,24 +92,45 @@ function Users() {
             <input
                 placeholder="Nombre"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  setName(e.target.value)
+                  setErrors({ ...errors, name: "" })
+                }}
+                
             />
-
+            {errors.name && (
+              <p style={{ color: "red", margin: 0 }}>{errors.name}</p>
+            )}
+           
             <input
                 placeholder="Email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  setErrors({ ...errors, email: "" })
+                }}
             />
-
+            {errors.email && (
+              <p style={{ color: "red", margin: 0 }}>{errors.email}</p>
+            )}
+            
             <input
                 placeholder="Rol"
                 value={role}
-                onChange={(e) => setRole(e.target.value)}
+                onChange={(e) => {
+                  setRole(e.target.value)
+                  setErrors({ ...errors, role: "" })
+                }}
+          
             />
-
+            {errors.role && (
+              <p style={{ color: "red", margin: 0 }}>{errors.role}</p>
+            )}
+            
             <button onClick={addUser}>
               {editingUser ? "Actualizar Usuario" : "Agregar Usuario"}
             </button>
+           
         </div>
         <input
         type="text"
@@ -101,6 +145,7 @@ function Users() {
             border: "1px solid #ccc"
         }}
         />
+        
       <table style={{
         width: "100%",
         borderCollapse: "collapse",
